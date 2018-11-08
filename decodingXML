@@ -1,0 +1,40 @@
+今天想复习一下有道词典里面收藏的单词，结果只能导出.bin, .xml, .txt格式，但是我想把它放在excel里更容易操作排序、染色等，所以就提取了xml格式，然后用python转成了xlsx格式。具体代码如下：
+```python
+import xml.etree.ElementTree as ET
+import pandas as pd
+import numpy as np
+
+tree = ET.parse('words.xml')
+root = tree.getroot()
+
+words = pd.DataFrame(columns = ['word','trans','phonetic'])
+for item in root:
+    df = pd.DataFrame({'word': item[0].text,
+                       'trans': item[1].text,
+                       'phonetic': item[2].text},
+                       index = item)
+    print(df)
+    words = pd.concat([words, df], ignore_index = True)
+    words = words.drop_duplicates()
+
+words.to_excel('words1.xlsx', sheet_name = '1')
+
+```
+在这里面有两个问题目前没有看懂，一个是
+
+```python
+words = words.drop_duplicates()
+```
+，为什么要用这个，应为不用他的话每个单词会打印5遍，没办法，我就把重复项去掉了，我也不知道为什么会打印5遍。另外一个就是在sublime text 3中写
+
+```python
+words.to_excel('words1.xlsx', sheet_name = '1')
+```
+的时候，会出现
+
+```python
+UnicodeEncodeError: 'gbk' codec can't encode character '\u028c' in position 134: illegal multibyte sequence
+```
+可能是因为，‘gbk’搞不定音标吧，我猜的啊，不知道怎么解决，反正我在jupyter notebook中跑出来了。
+
+就这样吧！
